@@ -97,7 +97,9 @@ E:\cocos2d-x-3.11\tools\cocos2d-console\bin\/cocos.py 2.1 - cocos console: cocos
 cocos gen-libs
 ```
 
-对cocos2d库进行预编译，这个过程会持续20min左右。最后会一个叫<code>simulator</code>的工程构建失败告终，但是别管它。
+对cocos2d库进行预编译，这个过程会持续20min左右。
+
+**注意**：如果你像我一样，此前卸载过VS，请参考[这里](http://stackoverflow.com/questions/8497931/msbuild-does-not-contain-a-value-for-the-vctargetspath-property)修复编译器问题。否则，最后可能会因一个叫simulator的工程构建失败而告终。
 
 然后输入：
 
