@@ -12,7 +12,7 @@
   - Cocos Studio入门
   - Cocos2d的游戏循环
 - Git
-  - Git的常见用法
+  - [Git的常见用法](doc/git_intro.md)
   - （新人必看）使用Git合作
 
 *kbridge*
