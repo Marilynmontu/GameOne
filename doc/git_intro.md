@@ -58,6 +58,8 @@ git config --global alias.co checkout
 
 ## 工作流
 
+个人使用Git的流程如下：
+
 ### 1.初始化版本库
 
 ```
@@ -66,7 +68,12 @@ git init
 
 这条命令执行之后，当前文件夹就变成了一个Git版本库。
 
-### 2.创建新文件/修改已有文件
+### 2.做出更改
+
+“更改”包括：
+
+- 创建、删除、移动（重命名）文件
+- 修改文件内容
 
 ### 3.查看更改状态
 
@@ -84,7 +91,9 @@ git diff
 
 ### 4.提交到版本库
 
-（关于message）
+提交到版本库，就是要Git记录这次的更改。除了要指定哪些文件中的更改需要记录外，还要写一条message描述这次更改。对很多不很聪明的人（比如我）来说，写程序本身就几乎绞尽脑汁，编message简直是神补刀。但message是必须的！一是Git强制你写，二是它能方便别人理解你这次的工作。
+
+庆幸的是，多数情况下message只需要一句话，比如“添加了跳跃功能。”如果用英文写，别用过去式（Fixed a bug.）或者第三人称（Fixes a bug.），用祈使句（Fix a bug.）。message的详细写法参见[这里](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html)。
 
 提交所有改动：
 ```
@@ -175,8 +184,6 @@ git push
 ```
 git push -u origin master
 ```
-
-**说明**：这条语句告诉git，
 
 ### 取回
 
