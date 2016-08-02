@@ -3,6 +3,8 @@
 
 #include "cocos2d.h"
 
+USING_NS_CC;
+
 class HelloWorld : public cocos2d::Layer
 {
 public:
@@ -14,6 +16,10 @@ public:
 
     // implement the "static create()" method manually
     CREATE_FUNC(HelloWorld);
+	void update(float delta) override;
+private:
+	Sprite *m_player;
+	Label *m_label;
 };
 
 #endif // __HELLOWORLD_SCENE_H__
