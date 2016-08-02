@@ -31,7 +31,7 @@ Python下载：
 
 ### cocos2d-x
 
-下载cocos2d-x 3.11，下载后解压其中的<code>cocos2d-x-3.11</code>文件夹，到一个简单的路径，比如<code>E:\</code>.
+下载cocos2d-x 3.11，下载后解压其中的<code>cocos2d-x-3.11</code>文件夹，到一个简单的路径，比如<code>E:\\</code>.
 
 [下载页](http://cocos2d-x.org/download)
 
