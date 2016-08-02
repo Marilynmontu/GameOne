@@ -21,30 +21,6 @@ Scene* HelloWorld::createScene()
     return scene;
 }
 
-class DistanceUpdater : public Node {
-
-public:
-	CREATE_FUNC(DistanceUpdater);
-
-	virtual bool init() {
-		this->scheduleUpdate();
-		return true;
-	}
-
-	void setVars(Label *label, Sprite *sprite) {
-		m_sprite = sprite;
-		m_label = label;
-	}
-
-	virtual void update(float dt) {
-		int x = m_sprite->getPosition().x-50;
-		m_label->setString(StringUtils::format("%d", x));
-	}
-
-private:
-	Sprite *m_sprite;
-	Label *m_label;
-};
 
 // on "init" you need to initialize your instance
 bool HelloWorld::init()
@@ -132,9 +108,15 @@ bool HelloWorld::init()
 	m_label->setPosition(900, 550);
 	rootNode->addChild(m_label);
 
-	auto updater = DistanceUpdater::create();
-	updater->setVars(m_label, m_player);
-	rootNode->addChild(updater);
+	
+	this->scheduleUpdate();
+
 
     return true;
+}
+
+void HelloWorld::update(float delta)
+{
+	int x = m_player->getPosition().x - 50;
+	m_label->setString(StringUtils::format("%d", x));
 }

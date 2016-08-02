@@ -16,7 +16,7 @@ public:
 
     // implement the "static create()" method manually
     CREATE_FUNC(HelloWorld);
-
+	void update(float delta) override;
 private:
 	Sprite *m_player;
 	Label *m_label;
