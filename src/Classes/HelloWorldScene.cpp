@@ -21,6 +21,31 @@ Scene* HelloWorld::createScene()
     return scene;
 }
 
+class DistanceUpdater : public Node {
+
+public:
+	CREATE_FUNC(DistanceUpdater);
+
+	virtual bool init() {
+		this->scheduleUpdate();
+		return true;
+	}
+
+	void setVars(Label *label, Sprite *sprite) {
+		m_sprite = sprite;
+		m_label = label;
+	}
+
+	virtual void update(float dt) {
+		int x = m_sprite->getPosition().x-50;
+		m_label->setString(StringUtils::format("%d", x));
+	}
+
+private:
+	Sprite *m_sprite;
+	Label *m_label;
+};
+
 // on "init" you need to initialize your instance
 bool HelloWorld::init()
 {
@@ -85,8 +110,31 @@ bool HelloWorld::init()
     }
     
     auto rootNode = CSLoader::createNode("MainScene.csb");
-
+	
     addChild(rootNode);
+
+	auto origin = Director::getInstance()->getVisibleOrigin();
+	auto size = Director::getInstance()->getVisibleSize();
+
+	auto background = DrawNode::create();
+	background->drawSolidRect(origin, size, Color4F(1.0, 1.0, 1.0, 1.0));
+	rootNode->addChild(background);
+
+	m_player = Sprite::create("player.png");
+	m_player->setPosition(Vec2(50,300));
+	rootNode->addChild(m_player);
+
+	auto moveby = MoveBy::create(3.0, Vec2(860, 0));
+	m_player->runAction(moveby);
+
+	m_label = Label::create("99","Arial",20);
+	m_label->setColor(Color3B(0, 0, 0));
+	m_label->setPosition(900, 550);
+	rootNode->addChild(m_label);
+
+	auto updater = DistanceUpdater::create();
+	updater->setVars(m_label, m_player);
+	rootNode->addChild(updater);
 
     return true;
 }
