@@ -93,7 +93,8 @@ bool HelloWorld::init()
 	auto size = Director::getInstance()->getVisibleSize();
 
 	auto background = DrawNode::create();
-	background->drawSolidRect(origin, size, Color4F(1.0, 1.0, 1.0, 1.0));
+	background->drawSolidRect(origin, size, Color4F(0.5098f, 0.9098f, 0.6078f, 1.0));
+	background->drawSegment(Vec2(0.0, 200.0), Vec2(960.0, 200.0), 1.0f, Color4F(0.6196f, 0.4745f, 0.1294f, 1.0));
 	rootNode->addChild(background);
 
 	m_player = Sprite::create("player.png");
