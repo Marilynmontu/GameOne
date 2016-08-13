@@ -85,9 +85,9 @@ bool HelloWorld::init()
         return false;
     }
     
-    auto rootNode = CSLoader::createNode("MainScene.csb");
+    m_rootNode = CSLoader::createNode("MainScene.csb");
 	
-    addChild(rootNode);
+    addChild(m_rootNode);
 
 	auto origin = Director::getInstance()->getVisibleOrigin();
 	auto size = Director::getInstance()->getVisibleSize();
@@ -95,19 +95,15 @@ bool HelloWorld::init()
 	auto background = DrawNode::create();
 	background->drawSolidRect(origin, size, Color4F(0.5098f, 0.9098f, 0.6078f, 1.0));
 	background->drawSegment(Vec2(0.0, 200.0), Vec2(960.0, 200.0), 1.0f, Color4F(0.6196f, 0.4745f, 0.1294f, 1.0));
-	rootNode->addChild(background);
+	m_rootNode->addChild(background);
 
-	m_player = Sprite::create("player.png");
-	m_player->setPosition(Vec2(50,300));
-	rootNode->addChild(m_player);
+	
 
-	auto moveby = MoveBy::create(3.0, Vec2(860, 0));
-	m_player->runAction(moveby);
 
 	m_label = Label::create("99","Arial",20);
 	m_label->setColor(Color3B(0, 0, 0));
 	m_label->setPosition(900, 550);
-	rootNode->addChild(m_label);
+	m_rootNode->addChild(m_label);
 
 	
 	this->scheduleUpdate();
@@ -120,4 +116,55 @@ void HelloWorld::update(float delta)
 {
 	int x = m_player->getPosition().x - 50;
 	m_label->setString(StringUtils::format("%d", x));
+
+	cpSpaceStep(m_space, delta);
+}
+
+void HelloWorld::onEnter()
+{
+	Node::onEnter();
+	m_space = cpSpaceNew();
+
+	cpVect gravity = { 0.0f, -350.0f };
+	cpSpaceSetGravity(m_space, gravity);
+
+	m_player = PhysicsSprite::create("player.png");
+	//m_player->setPosition(Vec2(50, 300));
+	m_rootNode->addChild(m_player);
+
+	auto moveby = MoveBy::create(3.0, Vec2(860, 0));
+	
+
+	auto playerSize = m_player->getContentSize();
+	m_playerBody = cpBodyNew(1.0f, cpMomentForBox(1.0f, playerSize.width, playerSize.height));
+	cpSpaceAddBody(m_space, m_playerBody);
+	cpVect bodyPos = { 50.0f, 300.0f };
+	cpBodySetPos(m_playerBody, bodyPos);
+
+	m_playerShape = cpBoxShapeNew(m_playerBody, playerSize.width, playerSize.height);
+	cpSpaceAddShape(m_space, m_playerShape);
+	m_player->setCPBody(m_playerBody);
+	//m_player->runAction(moveby);
+
+	auto m_debugNode = PhysicsDebugNode::create(m_space);
+	this->addChild(m_debugNode, 10);
+
+	cpVect beginPonit = { 0, 200.0f };
+	cpVect endPoint = { 300.0f, 200.0f };
+	m_ground1 = cpSegmentShapeNew(cpSpaceGetStaticBody(m_space), beginPonit, endPoint, 0.0f);
+	cpSpaceAddStaticShape(m_space, m_ground1);
+	cpVect j = { 120.0f, 0.0f };
+	cpBodyApplyImpulse(m_playerBody, j, cpvzero);
+
+
+}
+
+void HelloWorld::onExit()
+{
+	cpSpaceFree(m_space);
+	m_space = nullptr;
+
+	cpBodyFree(m_playerBody);
+	m_playerBody = nullptr;
+	Node::onExit();
 }

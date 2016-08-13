@@ -1,0 +1,186 @@
+[1mdiff --git a/src/Classes/HelloWorldScene.cpp b/src/Classes/HelloWorldScene.cpp[m
+[1mindex 8b1a96d..3c54ea3 100644[m
+[1m--- a/src/Classes/HelloWorldScene.cpp[m
+[1m+++ b/src/Classes/HelloWorldScene.cpp[m
+[36m@@ -85,9 +85,9 @@[m [mbool HelloWorld::init()[m
+         return false;[m
+     }[m
+     [m
+[31m-    auto rootNode = CSLoader::createNode("MainScene.csb");[m
+[32m+[m[32m    m_rootNode = CSLoader::createNode("MainScene.csb");[m
+ 	[m
+[31m-    addChild(rootNode);[m
+[32m+[m[32m    addChild(m_rootNode);[m
+ [m
+ 	auto origin = Director::getInstance()->getVisibleOrigin();[m
+ 	auto size = Director::getInstance()->getVisibleSize();[m
+[36m@@ -95,19 +95,15 @@[m [mbool HelloWorld::init()[m
+ 	auto background = DrawNode::create();[m
+ 	background->drawSolidRect(origin, size, Color4F(0.5098f, 0.9098f, 0.6078f, 1.0));[m
+ 	background->drawSegment(Vec2(0.0, 200.0), Vec2(960.0, 200.0), 1.0f, Color4F(0.6196f, 0.4745f, 0.1294f, 1.0));[m
+[31m-	rootNode->addChild(background);[m
+[32m+[m	[32mm_rootNode->addChild(background);[m
+ [m
+[31m-	m_player = Sprite::create("player.png");[m
+[31m-	m_player->setPosition(Vec2(50,300));[m
+[31m-	rootNode->addChild(m_player);[m
+[32m+[m[41m	[m
+ [m
+[31m-	auto moveby = MoveBy::create(3.0, Vec2(860, 0));[m
+[31m-	m_player->runAction(moveby);[m
+ [m
+ 	m_label = Label::create("99","Arial",20);[m
+ 	m_label->setColor(Color3B(0, 0, 0));[m
+ 	m_label->setPosition(900, 550);[m
+[31m-	rootNode->addChild(m_label);[m
+[32m+[m	[32mm_rootNode->addChild(m_label);[m
+ [m
+ 	[m
+ 	this->scheduleUpdate();[m
+[36m@@ -120,4 +116,55 @@[m [mvoid HelloWorld::update(float delta)[m
+ {[m
+ 	int x = m_player->getPosition().x - 50;[m
+ 	m_label->setString(StringUtils::format("%d", x));[m
+[32m+[m
+[32m+[m	[32mcpSpaceStep(m_space, delta);[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mvoid HelloWorld::onEnter()[m
+[32m+[m[32m{[m
+[32m+[m	[32mNode::onEnter();[m
+[32m+[m	[32mm_space = cpSpaceNew();[m
+[32m+[m
+[32m+[m	[32mcpVect gravity = { 0.0f, -350.0f };[m
+[32m+[m	[32mcpSpaceSetGravity(m_space, gravity);[m
+[32m+[m
+[32m+[m	[32mm_player = PhysicsSprite::create("player.png");[m
+[32m+[m	[32m//m_player->setPosition(Vec2(50, 300));[m
+[32m+[m	[32mm_rootNode->addChild(m_player);[m
+[32m+[m
+[32m+[m	[32mauto moveby = MoveBy::create(3.0, Vec2(860, 0));[m
+[32m+[m[41m	[m
+[32m+[m
+[32m+[m	[32mauto playerSize = m_player->getContentSize();[m
+[32m+[m	[32mm_playerBody = cpBodyNew(1.0f, cpMomentForBox(1.0f, playerSize.width, playerSize.height));[m
+[32m+[m	[32mcpSpaceAddBody(m_space, m_playerBody);[m
+[32m+[m	[32mcpVect bodyPos = { 50.0f, 300.0f };[m
+[32m+[m	[32mcpBodySetPos(m_playerBody, bodyPos);[m
+[32m+[m
+[32m+[m	[32mm_playerShape = cpBoxShapeNew(m_playerBody, playerSize.width, playerSize.height);[m
+[32m+[m	[32mcpSpaceAddShape(m_space, m_playerShape);[m
+[32m+[m	[32mm_player->setCPBody(m_playerBody);[m
+[32m+[m	[32m//m_player->runAction(moveby);[m
+[32m+[m
+[32m+[m	[32mauto m_debugNode = PhysicsDebugNode::create(m_space);[m
+[32m+[m	[32mthis->addChild(m_debugNode, 10);[m
+[32m+[m
+[32m+[m	[32mcpVect beginPonit = { 0, 200.0f };[m
+[32m+[m	[32mcpVect endPoint = { 300.0f, 200.0f };[m
+[32m+[m	[32mm_ground1 = cpSegmentShapeNew(cpSpaceGetStaticBody(m_space), beginPonit, endPoint, 0.0f);[m
+[32m+[m	[32mcpSpaceAddStaticShape(m_space, m_ground1);[m
+[32m+[m	[32mcpVect j = { 120.0f, 0.0f };[m
+[32m+[m	[32mcpBodyApplyImpulse(m_playerBody, j, cpvzero);[m
+[32m+[m
+[32m+[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mvoid HelloWorld::onExit()[m
+[32m+[m[32m{[m
+[32m+[m	[32mcpSpaceFree(m_space);[m
+[32m+[m	[32mm_space = nullptr;[m
+[32m+[m
+[32m+[m	[32mcpBodyFree(m_playerBody);[m
+[32m+[m	[32mm_playerBody = nullptr;[m
+[32m+[m	[32mNode::onExit();[m
+ }[m
+[1mdiff --git a/src/Classes/HelloWorldScene.h b/src/Classes/HelloWorldScene.h[m
+[1mindex 560dfae..608a77b 100644[m
+[1m--- a/src/Classes/HelloWorldScene.h[m
+[1m+++ b/src/Classes/HelloWorldScene.h[m
+[36m@@ -2,9 +2,10 @@[m
+ #define __HELLOWORLD_SCENE_H__[m
+ [m
+ #include "cocos2d.h"[m
+[31m-[m
+[32m+[m[32m#include "cocos-ext.h"[m
+[32m+[m[32m#include "_chipmunk.h"[m
+ USING_NS_CC;[m
+[31m-[m
+[32m+[m[32mUSING_NS_CC_EXT;[m
+ class HelloWorld : public cocos2d::Layer[m
+ {[m
+ public:[m
+[36m@@ -17,9 +18,16 @@[m [mpublic:[m
+     // implement the "static create()" method manually[m
+     CREATE_FUNC(HelloWorld);[m
+ 	void update(float delta) override;[m
+[32m+[m	[32mvoid onEnter() override;[m
+[32m+[m	[32mvoid onExit() override;[m
+ private:[m
+[31m-	Sprite *m_player;[m
+[32m+[m	[32mPhysicsSprite *m_player;[m
+ 	Label *m_label;[m
+[32m+[m	[32mcpSpace *m_space;[m
+[32m+[m	[32mcpBody *m_playerBody;[m
+[32m+[m	[32mcpShape *m_playerShape;[m
+[32m+[m	[32mcpShape *m_ground1;[m
+[32m+[m	[32mNode *m_rootNode;[m
+ };[m
+ [m
+ #endif // __HELLOWORLD_SCENE_H__[m
+[1mdiff --git a/src/proj.win32/Parkour.vcxproj b/src/proj.win32/Parkour.vcxproj[m
+[1mindex 6cbc1f3..8579142 100644[m
+[1m--- a/src/proj.win32/Parkour.vcxproj[m
+[1m+++ b/src/proj.win32/Parkour.vcxproj[m
+[36m@@ -1,4 +1,4 @@[m
+[31m-<?xml version="1.0" encoding="utf-8"?>[m
+[32m+[m[32m﻿<?xml version="1.0" encoding="utf-8"?>[m[41m[m
+ <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">[m
+   <ItemGroup Label="ProjectConfigurations">[m
+     <ProjectConfiguration Include="Debug|Win32">[m
+[36m@@ -71,7 +71,7 @@[m
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">[m
+     <ClCompile>[m
+       <Optimization>Disabled</Optimization>[m
+[31m-      <AdditionalIncludeDirectories>$(COCOS_X_ROOT)\cocos2d-x-3.10\cocos\audio\include;$(COCOS_X_ROOT)\cocos2d-x-3.10\external;$(COCOS_X_ROOT)\cocos2d-x-3.10\external\chipmunk\include\chipmunk;$(COCOS_X_ROOT)\cocos2d-x-3.10\extensions;..\Classes;..;%(AdditionalIncludeDirectories);$(_COCOS_HEADER_WIN32_BEGIN);$(_COCOS_HEADER_WIN32_END)</AdditionalIncludeDirectories>[m
+[32m+[m[32m      <AdditionalIncludeDirectories>$(COCOS_X_ROOT)\cocos2d-x-3.10\cocos\audio\include;$(COCOS_X_ROOT)\cocos2d-x-3.10\external;$(COCOS_X_ROOT)\cocos2d-x-3.10\external\chipmunk\include\chipmunk;$(COCOS_X_ROOT)\cocos2d-x-3.10\extensions;..\Classes;..;%(AdditionalIncludeDirectories);$(_COCOS_HEADER_WIN32_BEGIN);$(_COCOS_HEADER_WIN32_END);$(COCOS_X_ROOT)\cocos2d-x-3.10</AdditionalIncludeDirectories>[m[41m[m
+       <PreprocessorDefinitions>WIN32;_WINDOWS;_USE_MATH_DEFINES;GL_GLEXT_PROTOTYPES;CC_ENABLE_CHIPMUNK_INTEGRATION=1;COCOS2D_DEBUG=1;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>[m
+       <MinimalRebuild>false</MinimalRebuild>[m
+       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>[m
+[36m@@ -110,12 +110,11 @@[m [mxcopy "$(ProjectDir)..\Resources" "$(OutDir)" /D /E /I /F /Y[m
+       <Inputs>$(TargetFileName)</Inputs>[m
+     </CustomBuildStep>[m
+   </ItemDefinitionGroup>[m
+[31m-[m
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">[m
+     <ClCompile>[m
+       <Optimization>MaxSpeed</Optimization>[m
+       <IntrinsicFunctions>true</IntrinsicFunctions>[m
+[31m-      <AdditionalIncludeDirectories>$(COCOS_X_ROOT)\cocos2d-x-3.10\cocos\audio\include;$(COCOS_X_ROOT)\cocos2d-x-3.10\external;$(COCOS_X_ROOT)\cocos2d-x-3.10\external\chipmunk\include\chipmunk;$(COCOS_X_ROOT)\cocos2d-x-3.10\extensions;..\Classes;..;%(AdditionalIncludeDirectories);$(_COCOS_HEADER_WIN32_BEGIN);$(_COCOS_HEADER_WIN32_END)</AdditionalIncludeDirectories>[m
+[32m+[m[32m      <AdditionalIncludeDirectories>$(COCOS_X_ROOT)\cocos2d-x-3.10\cocos\audio\include;$(COCOS_X_ROOT)\cocos2d-x-3.10\external;$(COCOS_X_ROOT)\cocos2d-x-3.10\external\chipmunk\include\chipmunk;$(COCOS_X_ROOT)\cocos2d-x-3.10\extensions;..\Classes;..;%(AdditionalIncludeDirectories);$(_COCOS_HEADER_WIN32_BEGIN);$(_COCOS_HEADER_WIN32_END);$(COCOS_X_ROOT)\cocos2d-x-3.10</AdditionalIncludeDirectories>[m[41m[m
+       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USE_MATH_DEFINES;GL_GLEXT_PROTOTYPES;CC_ENABLE_CHIPMUNK_INTEGRATION=1;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>[m
+       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>[m
+       <FunctionLevelLinking>true</FunctionLevelLinking>[m
+[36m@@ -154,9 +153,9 @@[m [mxcopy /Y /Q "$(COCOS_X_ROOT)\cocos2d-x-3.10\prebuilt\win32\*.*" "$(OutDir)"[m
+   <ItemGroup>[m
+     <ClInclude Include="..\Classes\AppDelegate.h" />[m
+     <ClInclude Include="..\Classes\HelloWorldScene.h" />[m
+[32m+[m[32m    <ClInclude Include="..\Classes\_chipmunk.h" />[m[41m[m
+     <ClInclude Include="main.h" />[m
+   </ItemGroup>[m
+[31m-  [m
+   <ItemGroup>[m
+     <ResourceCompile Include="game.rc" />[m
+   </ItemGroup>[m
+[1mdiff --git a/src/proj.win32/Parkour.vcxproj.filters b/src/proj.win32/Parkour.vcxproj.filters[m
+[1mindex 45ba4a1..bec5947 100644[m
+[1m--- a/src/proj.win32/Parkour.vcxproj.filters[m
+[1m+++ b/src/proj.win32/Parkour.vcxproj.filters[m
+[36m@@ -32,6 +32,7 @@[m
+     <ClInclude Include="..\Classes\HelloWorldScene.h">[m
+       <Filter>src</Filter>[m
+     </ClInclude>[m
+[32m+[m[32m    <ClInclude Include="..\Classes\_chipmunk.h" />[m
+   </ItemGroup>[m
+   <ItemGroup>[m
+     <ResourceCompile Include="game.rc">[m
